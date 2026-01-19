@@ -2,35 +2,12 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skyblock Gemstone Profit</title>
-   <link rel="stylesheet" href="site.css">
-   <script src="site.js" defer></script>
+    <link rel="stylesheet" href="site.css"> 
 </head>
 <body>
-    <div class="container">
-        <h1>?? Skyblock Gemstones</h1>
-        <div class="controls">
-            <button class="refresh-btn" onclick="fetchBazaarData()">ODŒWIE¯ CENY</button>
-        </div>
-        <div id="status" class="loading">Inicjalizacja danych...</div>
-        <div class="table-wrapper">
-            <table id="gemTable">
-                <thead>
-                    <tr>
-                        <th>Typ Gemstone</th>
-                        <th>Cena Fine</th>
-                        <th>Cena Flawless</th>
-                        <th>80x Fine</th>
-                        <th>Op³acalnoœæ</th>
-                    </tr>
-                </thead>
-                <tbody id="gemBody">
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <script src="js/site.js"></script>
-</body>
+    <div id="gemBody"></div>
 
+    <script src="site.js"></script>
+</body>
 </html>
