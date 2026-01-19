@@ -2,36 +2,27 @@ async function fetchBazaarData() {
     const status = document.getElementById('status');
     const tbody = document.getElementById('gemBody');
     
-    // 1. Informacja dla użytkownika
-    if (status) status.innerText = "Łączenie z serwerem Hypixel (może to potrwać 5s)...";
-    if (tbody) tbody.innerHTML = ""; // Czyścimy tabelę
+    if (status) status.innerText = "Pobieranie danych (Proxy: CodeTabs)...";
+    if (tbody) tbody.innerHTML = ""; 
 
     const apiUrl = "https://api.hypixel.net/v2/skyblock/bazaar";
-    // Używamy AllOrigins, bo jest darmowe i nie ma limitu 1MB jak corsproxy.io
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+    
+    // ZMIANA: Używamy CodeTabs - jest stabilniejsze dla dużych plików JSON
+    const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(apiUrl)}`;
 
     try {
-        // 2. Pobieranie danych
         const response = await fetch(proxyUrl);
         
         if (!response.ok) {
             throw new Error(`Błąd sieci: ${response.status}`);
         }
 
-        const rawData = await response.json();
-        
-        // 3. Sprawdzanie czy proxy zwróciło dane
-        if (!rawData.contents) {
-            throw new Error("Proxy nie zwróciło zawartości.");
-        }
+        // CodeTabs zwraca czysty JSON, nie musimy używać JSON.parse(contents)
+        const data = await response.json();
 
-        const data = JSON.parse(rawData.contents);
-
-        // 4. Budowanie tabeli
         if (data.success && tbody) {
             const products = data.products;
             
-            // Lista gemów
             const gemTypes = [
                 "RUBY", "AMETHYST", "JADE", "AMBER", "TOPAZ", "SAPPHIRE", "JASPER", "OPAL",
                 "AQUAMARINE", "ONYX", "CITRINE", "PERIDOT"
@@ -63,16 +54,15 @@ async function fetchBazaarData() {
                 }
             });
 
-            if (status) status.innerText = `Sukces! Zaktualizowano: ${new Date().toLocaleTimeString()} (Znaleziono: ${foundCount})`;
+            if (status) status.innerText = `Sukces! Zaktualizowano: ${new Date().toLocaleTimeString()}`;
         } else {
-            throw new Error("Hypixel API zwróciło success: false");
+            throw new Error("API nie zwróciło danych (success: false)");
         }
 
     } catch (error) {
-        // To pokaże błąd na ekranie, zamiast pustej tabeli
         console.error(error);
         if (status) {
-            status.innerHTML = `<span style="color: red; font-weight: bold;">BŁĄD: ${error.message} <br> Spróbuj odświeżyć stronę za chwilę.</span>`;
+            status.innerHTML = `<span style="color: red; font-weight: bold;">BŁĄD: ${error.message} <br> Spróbuj odświeżyć stronę (F5).</span>`;
         }
     }
 }
