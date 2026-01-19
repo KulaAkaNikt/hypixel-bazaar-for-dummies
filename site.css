@@ -24,6 +24,20 @@ body {
 .text-fine {
     color: #55cdff;
 }
+.quote {
+    font-style: italic;
+    color: #aaaaaa; /* Delikatny szary kolor */
+    margin-top: -10px; /* Przybliża cytat do tytułu */
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.quote em {
+    color: #ffac1c; /* Złoty kolor dla autora */
+    font-weight: bold;
+    font-style: normal;
+}
 
 .gem-aquamarine { color: #00ffff; }
 .gem-onyx { color: #555555; }
@@ -169,5 +183,6 @@ tr:hover {
         font-size: 14px;
     }
 }
+
 
 
