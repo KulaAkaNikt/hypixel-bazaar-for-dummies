@@ -2,42 +2,35 @@ async function fetchBazaarData() {
     const status = document.getElementById('status');
     const tbody = document.getElementById('gemBody');
     
-    if (status) status.innerText = "Pobieranie danych (Proxy: CodeTabs)...";
+    if (status) status.innerText = "Pobieranie cen (Buy Orders i Sell Offers)...";
     if (tbody) tbody.innerHTML = ""; 
 
     const apiUrl = "https://api.hypixel.net/v2/skyblock/bazaar";
-    
-    // ZMIANA: Używamy CodeTabs - jest stabilniejsze dla dużych plików JSON
     const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(apiUrl)}`;
 
     try {
         const response = await fetch(proxyUrl);
-        
-        if (!response.ok) {
-            throw new Error(`Błąd sieci: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Błąd sieci: ${response.status}`);
 
-        // CodeTabs zwraca czysty JSON, nie musimy używać JSON.parse(contents)
         const data = await response.json();
 
         if (data.success && tbody) {
             const products = data.products;
-            
             const gemTypes = [
                 "RUBY", "AMETHYST", "JADE", "AMBER", "TOPAZ", "SAPPHIRE", "JASPER", "OPAL",
                 "AQUAMARINE", "ONYX", "CITRINE", "PERIDOT"
             ];
             
-            let foundCount = 0;
-
             gemTypes.forEach(type => {
                 const fineKey = `FINE_${type}_GEM`;
                 const flawlessKey = `FLAWLESS_${type}_GEM`;
 
                 if (products[fineKey] && products[flawlessKey]) {
-                    foundCount++;
+                    // ZMIANA: Cena Fine z Buy Order (buyPrice)
                     const finePrice = products[fineKey].quick_status.buyPrice;
-                    const flawlessPrice = products[flawlessKey].quick_status.buyPrice;
+                    // ZMIANA: Cena Flawless z Sell Offer (sellPrice)
+                    const flawlessPrice = products[flawlessKey].quick_status.sellPrice;
+                    
                     const fineX80 = finePrice * 80;
                     const diff = flawlessPrice - fineX80;
 
@@ -54,16 +47,11 @@ async function fetchBazaarData() {
                 }
             });
 
-            if (status) status.innerText = `Sukces! Zaktualizowano: ${new Date().toLocaleTimeString()}`;
-        } else {
-            throw new Error("API nie zwróciło danych (success: false)");
+            if (status) status.innerText = `Sukces! Dane zoptymalizowane pod ordery: ${new Date().toLocaleTimeString()}`;
         }
-
     } catch (error) {
         console.error(error);
-        if (status) {
-            status.innerHTML = `<span style="color: red; font-weight: bold;">BŁĄD: ${error.message} <br> Spróbuj odświeżyć stronę (F5).</span>`;
-        }
+        if (status) status.innerHTML = `<span style="color: red;">BŁĄD: ${error.message}</span>`;
     }
 }
 
