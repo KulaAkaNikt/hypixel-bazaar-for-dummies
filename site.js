@@ -223,3 +223,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Automatyczne odświeżanie co 30 sekund
 setInterval(fetchBazaarData, 30000);
+
