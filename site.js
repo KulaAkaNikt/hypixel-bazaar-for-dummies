@@ -2,25 +2,30 @@ async function fetchBazaarData() {
     const status = document.getElementById('status');
     const tbody = document.getElementById('gemBody');
     
-    if (status) status.innerText = "Pobieranie danych (Proxy: AllOrigins)...";
-    if (tbody) tbody.innerHTML = ""; 
-
+    if (status) status.innerHTML = "Aktualizacja cen...";
+    
+    // API URL
     const apiUrl = "https://api.hypixel.net/v2/skyblock/bazaar";
-    // Używamy AllOrigins, aby ominąć limit 1MB w corsproxy.io
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+    
+    // Używamy CodeTabs - stabilna bramka bez limitu 1MB
+    const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(apiUrl)}`;
 
     try {
         const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error(`Błąd sieci: ${response.status}`);
+        
+        if (!response.ok) {
+            throw new Error(`Błąd bramki: ${response.status}`);
+        }
 
-        const rawData = await response.json();
-        const data = JSON.parse(rawData.contents); // AllOrigins pakuje dane do pola 'contents'
+        const data = await response.json();
 
         if (data.success && tbody) {
+            tbody.innerHTML = ""; // Czyścimy tabelę dopiero po odebraniu danych
             const products = data.products;
+            
             const gemTypes = [
-                "RUBY", "AMETHYST", "JADE", "AMBER", "TOPAZ", "SAPPHIRE", 
-                "JASPER", "OPAL", "AQUAMARINE", "ONYX", "CITRINE", "PERIDOT"
+                "RUBY", "AMETHYST", "JADE", "AMBER", "TOPAZ", "SAPPHIRE", "JASPER", "OPAL",
+                "AQUAMARINE", "ONYX", "CITRINE", "PERIDOT"
             ];
             
             gemTypes.forEach(type => {
@@ -28,11 +33,10 @@ async function fetchBazaarData() {
                 const flawlessKey = `FLAWLESS_${type}_GEM`;
 
                 if (products[fineKey] && products[flawlessKey]) {
-                    // DOKŁADNE CENY ZGODNIE Z TWOJĄ PROŚBĄ:
-                    // Cena Fine z Buy Order (za tyle Ty chcesz kupić od innych)
+                    // Fine: Buy Order Price (buyPrice w API)
                     const finePrice = products[fineKey].quick_status.buyPrice;
                     
-                    // Cena Flawless z Sell Offer (za tyle Ty wystawiasz na sprzedaż)
+                    // Flawless: Sell Offer Price (sellPrice w API)
                     const flawlessPrice = products[flawlessKey].quick_status.sellPrice;
                     
                     const cost80xFine = finePrice * 80;
@@ -51,15 +55,15 @@ async function fetchBazaarData() {
                 }
             });
 
-            if (status) status.innerHTML = `Sukces! Zaktualizowano: ${new Date().toLocaleTimeString()}<br><small>Fine: Buy Order | Flawless: Sell Offer</small>`;
+            if (status) status.innerHTML = `Ostatnia aktualizacja: ${new Date().toLocaleTimeString()}`;
         }
     } catch (error) {
-        console.error("Błąd:", error);
-        if (status) status.innerHTML = `<span style="color: red;">BŁĄD: ${error.message}. Spróbuj F5.</span>`;
+        console.error("Szczegóły błędu:", error);
+        if (status) {
+            status.innerHTML = `<span style="color: #ff4444;">Błąd: ${error.message}. Spróbuj F5 za chwilę.</span>`;
+        }
     }
 }
 
-// Start po załadowaniu strony
+// Start po załadowaniu
 document.addEventListener('DOMContentLoaded', fetchBazaarData);
-// Odświeżanie co 60 sekund
-setInterval(fetchBazaarData, 60000);
