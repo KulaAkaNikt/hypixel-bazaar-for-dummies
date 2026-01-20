@@ -51,7 +51,12 @@ async function fetchBazaarData() {
                     const revenueAfterTax = flawlessPrice * (1 - taxRate);
                     const netProfit = revenueAfterTax - cost80xFine;
 
-                    const format = num => Math.round(num).toLocaleString('pl-PL');
+                    const format = num => {
+                        return num.toLocaleString('pl-PL', {
+                            minimumFractionDigits: 1,
+                            maximumFractionDigits: 1
+                        });
+                    };
 
                     const row = `<tr>
                         <td class="gem-${type.toLowerCase()}"><strong>${type}</strong></td>
@@ -77,3 +82,4 @@ async function fetchBazaarData() {
 }
 
 document.addEventListener('DOMContentLoaded', fetchBazaarData);
+
