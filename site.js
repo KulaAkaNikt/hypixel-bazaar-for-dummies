@@ -2,7 +2,7 @@ async function fetchBazaarData() {
     const status = document.getElementById('status');
     const tbody = document.getElementById('gemBody');
     
-    if (status) status.innerHTML = "Aktualizacja danych (Podatek: 1.1%)...";
+    if (status) status.innerHTML = "Pobieranie cen bezpośrednich z API...";
     
     const apiUrl = "https://api.hypixel.net/v2/skyblock/bazaar";
     const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(apiUrl)}`;
@@ -16,65 +16,96 @@ async function fetchBazaarData() {
         if (data.success && tbody) {
             tbody.innerHTML = ""; 
             const products = data.products;
-            const gemTypes = [
-                "RUBY", "AMETHYST", "JADE", "AMBER", "TOPAZ", "SAPPHIRE", "JASPER", "OPAL",
-                "AQUAMARINE", "ONYX", "CITRINE", "PERIDOT"
-            ];
+
+            const format = num => {
+                return num.toLocaleString('pl-PL', {
+                    minimumFractionDigits: 1,
+                    maximumFractionDigits: 1
+                });
+            };
+
+            const getPrice = (product, type) => {
+                if (type === 'buy') { // Nasz koszt (Instant Buy)
+                    return product.sell_summary && product.sell_summary.length > 0 
+                        ? product.sell_summary[0].pricePerUnit 
+                        : product.quick_status.sellPrice;
+                } else { // Nasz przychód (Instant Sell)
+                    return product.buy_summary && product.buy_summary.length > 0 
+                        ? product.buy_summary[0].pricePerUnit 
+                        : product.quick_status.buyPrice;
+                }
+            };
+
+            const taxRate = 0.011; // Podatek 1.1%
+
+            // --- SEKCJA 1: GEMSTONE (80x Fine -> Flawless) ---
+            const gemTypes = ["RUBY", "AMETHYST", "JADE", "AMBER", "TOPAZ", "SAPPHIRE", "JASPER", "OPAL", "AQUAMARINE", "ONYX", "CITRINE", "PERIDOT"];
             
             gemTypes.forEach(type => {
-                const fineKey = `FINE_${type}_GEM`;
-                const flawlessKey = `FLAWLESS_${type}_GEM`;
+                const fine = products[`FINE_${type}_GEM`];
+                const flawless = products[`FLAWLESS_${type}_GEM`];
 
-                if (products[fineKey] && products[flawlessKey]) {
-                    const fineProduct = products[fineKey];
-                    const flawlessProduct = products[flawlessKey];
+                if (fine && flawless) {
+                    const buyFine = getPrice(fine, 'buy');
+                    const sellFlawless = getPrice(flawless, 'sell');
+                    const cost80 = buyFine * 80;
+                    const netProfit = (sellFlawless * (1 - taxRate)) - cost80;
 
-                    // 1. Pobieranie ceny FINE z sell_summary[0] (zgodnie z obrazkiem 6c4262)
-                    let finePrice = 0;
-                    if (fineProduct.sell_summary && fineProduct.sell_summary.length > 0) {
-                        finePrice = fineProduct.sell_summary[0].pricePerUnit;
-                    } else {
-                        finePrice = fineProduct.quick_status.sellPrice;
-                    }
-
-                    // 2. Pobieranie ceny FLAWLESS z buy_summary[0]
-                    let flawlessPrice = 0;
-                    if (flawlessProduct.buy_summary && flawlessProduct.buy_summary.length > 0) {
-                        flawlessPrice = flawlessProduct.buy_summary[0].pricePerUnit;
-                    } else {
-                        flawlessPrice = flawlessProduct.quick_status.buyPrice;
-                    }
-                    
-                    // 3. OBLICZENIA Z UWZGLĘDNIENIEM PODATKU 1.1%
-                    const cost80xFine = finePrice * 80;
-                    const taxRate = 0.011; // Zmieniono na 1.1%
-                    const revenueAfterTax = flawlessPrice * (1 - taxRate);
-                    const netProfit = revenueAfterTax - cost80xFine;
-
-                    const format = num => {
-                        return num.toLocaleString('pl-PL', {
-                            minimumFractionDigits: 1,
-                            maximumFractionDigits: 1
-                        });
-                    };
-
-                    const row = `<tr>
+                    tbody.innerHTML += `<tr>
                         <td class="gem-${type.toLowerCase()}"><strong>${type}</strong></td>
-                        <td style="color: #55cdff;">${format(finePrice)}</td>
-                        <td style="color: #aa00aa;">${format(flawlessPrice)}</td>
-                        <td style="color: #ffac1c;">${format(cost80xFine)}</td>
+                        <td style="color: #55cdff;">${format(buyFine)}</td>
+                        <td style="color: #aa00aa;">${format(sellFlawless)}</td>
+                        <td style="color: #ffac1c;">${format(cost80)}</td>
                         <td style="color: ${netProfit >= 0 ? '#00ff00' : '#ff4444'}; font-weight: bold;">
                             ${netProfit >= 0 ? "+" : ""}${format(netProfit)}
                         </td>
                     </tr>`;
+                }
+            });
+
+            // --- SEKCJA 2: ROLNICTWO (Ceny bezpośrednie z API) ---
+            const farmItems = [
+                { base: "FERMENTO", condensed: "CONDENSED_FERMENTO", label: "Fermento" },
+                { base: "FLOWERING_HELIANTHUS", condensed: "CONDENSED_HELIANTHUS", label: "Helianthus" }
+            ];
+
+            farmItems.forEach(item => {
+                const baseProd = products[item.base];
+                const condProd = products[item.condensed];
+
+                if (baseProd && condProd) {
+                    const priceBaseUnit = getPrice(baseProd, 'buy'); // Cena 1 sztuki bazy (sell_summary[0])
+                    const priceCondensedDirect = getPrice(condProd, 'sell'); // Cena sprzedaży gotowca (buy_summary[0])
                     
-                    tbody.innerHTML += row;
+                    const cost8x = priceBaseUnit * 8;
+                    const cost64x = priceBaseUnit * 64;
+                    const netProfit = (priceCondensedDirect * (1 - taxRate)) - cost64x;
+
+                    // Wiersz pośredni (koszt 8 sztuk)
+                    tbody.innerHTML += `<tr>
+                        <td><strong>8x ${item.label}</strong></td>
+                        <td style="color: #55cdff;">${format(priceBaseUnit)}</td>
+                        <td style="color: #ffffff;">---</td>
+                        <td style="color: #ffac1c;">${format(cost8x)}</td>
+                        <td style="color: #888;">Koszt x8</td>
+                    </tr>`;
+
+                    // Wiersz docelowy (Condensed - cena pobrana bezpośrednio z API)
+                    tbody.innerHTML += `<tr>
+                        <td><strong>Condensed ${item.label}</strong></td>
+                        <td style="color: #55cdff;">${format(priceBaseUnit)}</td>
+                        <td style="color: #aa00aa;">${format(priceCondensedDirect)}</td>
+                        <td style="color: #ffac1c;">${format(cost64x)}</td>
+                        <td style="color: ${netProfit >= 0 ? '#00ff00' : '#ff4444'}; font-weight: bold;">
+                            ${netProfit >= 0 ? "+" : ""}${format(netProfit)}
+                        </td>
+                    </tr>`;
                 }
             });
 
             const time = new Date().toLocaleTimeString('pl-PL');
-            status.innerHTML = `Ostatnia aktualizacja: ${time}<br>
-                               <small>Metoda: Arkusz Zleceń | Podatek: 1.1%</small>`;
+            status.innerHTML = `Zaktualizowano: ${time}<br>
+                               <small>Ceny bezpośrednie z API | Podatek: 1.1%</small>`;
         }
     } catch (error) {
         if (status) status.innerHTML = `<span style="color: red;">Błąd: ${error.message}</span>`;
@@ -82,4 +113,3 @@ async function fetchBazaarData() {
 }
 
 document.addEventListener('DOMContentLoaded', fetchBazaarData);
-
