@@ -108,6 +108,8 @@ h1 {
     padding: 10px 25px;
     background: var(--accent);
     color: #000;
+    display; flex;
+    flex-direction: row;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -182,6 +184,7 @@ tr:hover {
         font-size: 14px;
     }
 }
+
 
 
 
