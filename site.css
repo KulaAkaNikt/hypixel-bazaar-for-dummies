@@ -200,12 +200,12 @@ tr:hover {
     image-rendering: pixelated;
 
 .gem-name-fermento {
-    color: #ff8800;  /* kolor dla Fermento */
+    color: #f7a399;  /* kolor dla Fermento */
     font-weight: bold;
 }
 
 .gem-name-helianthus {
-    color: #00ccff;  /* kolor dla Helianthusa */
+    color: #a38b00;  /* kolor dla Helianthusa */
     font-weight: bold;
 }
 
@@ -225,6 +225,7 @@ tr:hover {
     
     }
 }
+
 
 
 
