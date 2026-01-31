@@ -46,6 +46,15 @@ body {
 .gem-ruby { color: #ff5555; }
 .gem-jasper { color: #ff55ff; }
 
+
+.gem-fermento {
+    color: #f7a399;
+}
+
+.gem-helianthus {
+    color: #a38b00;
+}
+
 /* Kolor dla wersji Flawless - fioletowy (jak w grze) */
 .text-flawless {
     color: #aa00aa;
@@ -204,6 +213,7 @@ tr:hover {
     
     }
 }
+
 
 
 
