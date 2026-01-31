@@ -83,7 +83,13 @@ async function fetchBazaarData() {
                     const netProfit = (priceCondensed * (1 - taxRate)) - cost9x;
 
                     tbody.innerHTML += `<tr>
-                        <td><strong>${item.label}</strong></td>
+                      let nameClass = item.label.toLowerCase() === "fermento" ? "gem-name-fermento" : "gem-name-helianthus";
+let iconSrc = item.label.toLowerCase() === "fermento" ? "icons/fermento.png" : "icons/helianthus.png";
+
+<td class="${nameClass}">
+    <img src="${iconSrc}" alt="${item.label}" class="small-icon">
+    <strong>${item.label}</strong>
+</td>
                         <td style="color: #55cdff;">${format(cost9x)} (x9)</td>
                         <td style="color: #aa00aa;">${format(priceCondensed)}</td>
                         <td style="color: #888;">---</td>
@@ -104,6 +110,7 @@ async function fetchBazaarData() {
     }
 }
 document.addEventListener('DOMContentLoaded', fetchBazaarData);
+
 
 
 
