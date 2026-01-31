@@ -66,24 +66,45 @@ async function fetchBazaarData() {
                     </tr>`;
                 }
             });
-            const farmItems = [
-                { base: "FERMENTO", condensed: "CONDENSED_FERMENTO", label: "Fermento" },
-                { base: "HELIANTHUS", condensed: "CONDENSED_HELIANTHUS", label: "Helianthus" }
-            ];
+          const farmItems = [
+    { base: "FERMENTO", condensed: "CONDENSED_FERMENTO", label: "Fermento" },
+    { base: "HELIANTHUS", condensed: "CONDENSED_HELIANTHUS", label: "Helianthus" }
+];
 
-         farmItems.forEach(item => {
+farmItems.forEach(item => {
     const baseProd = products[item.base];
     const condProd = products[item.condensed];
 
-    if (baseProd && condProd) {
-        const priceBaseUnit = getPriceFromSummary(baseProd, 'sell');
-        const priceCondensed = getPriceFromSummary(condProd, 'buy');
-        const cost9x = priceBaseUnit * 9; 
-        const netProfit = (priceCondensed * (1 - taxRate)) - cost9x;
+    if (!baseProd || !condProd) {
+        console.warn(`Nie znaleziono produktu: ${item.base} lub ${item.condensed}`);
+        return; // pomijamy jeśli brak danych
+    }
 
-        // Dodajemy klasę i ikonę przy nazwie
-        let nameClass = item.label.toLowerCase() === "fermento" ? "gem-name-fermento" : "gem-name-helianthus";
-        let iconSrc = item.label.toLowerCase() === "fermento" ? "icons/fermento.png" : "icons/helianthus.png";
+    const priceBaseUnit = getPriceFromSummary(baseProd, 'sell');
+    const priceCondensed = getPriceFromSummary(condProd, 'buy');
+    const cost9x = priceBaseUnit * 9;
+    const netProfit = (priceCondensed * (1 - taxRate)) - cost9x;
+
+    // deklarujemy klasę i ikonę dla nazwy
+    let nameClass = item.label.toLowerCase() === "fermento" ? "gem-name-fermento" : "gem-name-helianthus";
+    let iconSrc = item.label.toLowerCase() === "fermento" ? "icons/fermento.png" : "icons/helianthus.png";
+
+    tbody.innerHTML += `
+        <tr>
+            <td class="${nameClass}">
+                <img src="${iconSrc}" alt="${item.label}" class="small-icon">
+                <strong>${item.label}</strong>
+            </td>
+            <td>${format(cost9x)} (x9)</td>
+            <td>${format(priceCondensed)}</td>
+            <td style="color: #888;">---</td>
+            <td style="color: ${netProfit >= 0 ? '#00ff00' : '#ff4444'}; font-weight: bold;">
+                ${netProfit >= 0 ? "+" : ""}${format(netProfit)}
+            </td>
+        </tr>
+    `;
+});
+
 
         tbody.innerHTML += `<tr>
             <td class="${nameClass}">
@@ -112,6 +133,7 @@ async function fetchBazaarData() {
     }
 }
 document.addEventListener('DOMContentLoaded', fetchBazaarData);
+
 
 
 
