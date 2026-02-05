@@ -100,10 +100,11 @@ async function fetchBazaarData() {
             status.innerHTML = `Updated: ${time}`;
         }
     } catch (error) {
-        if (status) status.innerHTML = `<span style="color: red;">Błąd: ${error.message}</span>`;
+        if (status) status.innerHTML = `<span style="color: red;">Error: ${error.message}</span>`;
     }
 }
 document.addEventListener('DOMContentLoaded', fetchBazaarData);
+
 
 
 
