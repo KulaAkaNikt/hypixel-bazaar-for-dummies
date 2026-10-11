@@ -4,8 +4,8 @@ async function fetchBazaarData() {
     
     if (status) status.innerHTML = "Update...";
     
-    const apiUrl = "https://api.hypixel.net/v2/skyblock/bazaar";
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+const apiUrl = "https://api.hypixel.net/v2/skyblock/bazaar";
+const proxyUrl = `https://proxy.corsfix.com/?${encodeURIComponent(apiUrl)}`;
 
     try {
         const response = await fetch(proxyUrl);
