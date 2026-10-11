@@ -4,7 +4,7 @@ async function fetchBazaarData() {
     
     if (status) status.innerHTML = "Update...";
     
-const proxyUrl = `hypixel-bazaar-for-dummies.maciek-pastucha.workers.dev`;
+const proxyUrl = "https://hypixel-bazaar-for-dummies.maciek-pastucha.workers.dev";
 
     try {
         const response = await fetch(proxyUrl);
