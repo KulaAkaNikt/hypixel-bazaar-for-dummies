@@ -5,7 +5,6 @@ async function fetchBazaarData() {
     if (status) status.innerHTML = "Update...";
     
     const apiUrl = "https://api.hypixel.net/v2/skyblock/bazaar";
-    // Zmiana proxy na corsproxy.io (możesz też użyć: `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`)
     const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
 
     try {
