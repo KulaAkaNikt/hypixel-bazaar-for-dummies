@@ -5,7 +5,8 @@ async function fetchBazaarData() {
     if (status) status.innerHTML = "Update...";
     
     const apiUrl = "https://api.hypixel.net/v2/skyblock/bazaar";
-    const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(apiUrl)}`;
+    // Zmiana proxy na corsproxy.io (możesz też użyć: `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`)
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
 
     try {
         const response = await fetch(proxyUrl);
@@ -48,7 +49,7 @@ async function fetchBazaarData() {
                     const cost80 = priceFine * 80;
                     const netProfit = (priceFlawless * (1 - taxRate)) - cost80;
 
-                  tbody.innerHTML += `<tr>
+                    tbody.innerHTML += `<tr>
     <td class="gem-cell gem-${type.toLowerCase()}">
         <img
             src="icons/${type.toLowerCase()}.png"
@@ -66,6 +67,7 @@ async function fetchBazaarData() {
                     </tr>`;
                 }
             });
+
             const farmItems = [
                 { base: "FERMENTO", condensed: "CONDENSED_FERMENTO", label: "Fermento" },
                 { base: "HELIANTHUS", condensed: "CONDENSED_HELIANTHUS", label: "Helianthus" }
@@ -104,8 +106,3 @@ async function fetchBazaarData() {
     }
 }
 document.addEventListener('DOMContentLoaded', fetchBazaarData);
-
-
-
-
-
